@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"print\\('python3 ok'\\)\")",
+      "Bash(espeak-ng --voices=hu)",
+      "Bash(convert -list delegate)",
+      "Bash(echo \"exit:$?\")",
+      "Bash(python3 -c \"import cairosvg\")"
+    ]
+  }
+}
