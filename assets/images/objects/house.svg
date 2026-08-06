@@ -16,4 +16,7 @@
   <ellipse cx="150" cy="412" rx="26" ry="20" fill="#4CAF50" />
   <circle cx="140" cy="404" r="4" fill="#EE5C6E" />
   <circle cx="158" cy="408" r="4" fill="#EE5C6E" />
+  <rect x="365" y="380" width="20" height="24" rx="3" fill="#5B9BD5" />
+  <rect x="372" y="368" width="8" height="14" fill="#8A5A34" />
+  <circle cx="382" cy="392" r="2" fill="#FFD54F" />
 </svg>

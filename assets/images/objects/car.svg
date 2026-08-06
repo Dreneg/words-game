@@ -3,7 +3,7 @@
   <rect x="110" y="300" width="292" height="70" rx="20" fill="#EF5350" />
   <path d="M 150 300 L 175 235 Q 185 225 200 225 L 312 225 Q 327 225 337 235 L 362 300 Z" fill="#EF5350" />
   <rect x="190" y="240" width="100" height="55" rx="8" fill="#BEE7F5" />
-  <rect x="307" y="240" width="90" height="55" rx="8" fill="#BEE7F5" />
+  <path d="M 313 240 Q 331 236 340 238 Q 350 260 353 285 Q 353 293 345 293 L 313 293 Q 307 293 307 287 L 307 246 Q 307 241 313 240 Z" fill="#BEE7F5" />
   <rect x="140" y="243" width="16" height="11" rx="5" fill="#B23A33" transform="rotate(-15 148 248)" />
   <rect x="242" y="328" width="24" height="7" rx="3.5" fill="#B23A33" />
   <circle cx="180" cy="375" r="42" fill="#2B2B2B" />
@@ -11,4 +11,9 @@
   <circle cx="332" cy="375" r="42" fill="#2B2B2B" />
   <circle cx="332" cy="375" r="18" fill="#9B9B9B" />
   <circle cx="130" cy="320" r="14" fill="#FFEE58" />
+  <ellipse cx="168" cy="252" rx="10" ry="7" fill="#EF5350" />
+  <line x1="250" y1="300" x2="250" y2="368" stroke="#B23A33" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <line x1="60" y1="290" x2="100" y2="290" stroke="#9BC4E2" stroke-width="6" stroke-linecap="round" opacity="0.6"/>
+  <line x1="55" y1="315" x2="95" y2="315" stroke="#9BC4E2" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+  <line x1="65" y1="340" x2="100" y2="340" stroke="#9BC4E2" stroke-width="6" stroke-linecap="round" opacity="0.4"/>
 </svg>

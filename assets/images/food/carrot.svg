@@ -2,7 +2,10 @@
   <circle cx="256" cy="256" r="256" fill="#FFE9DD"/>
   <path d="M 220 200 Q 256 380 300 420 Q 320 400 300 360 Q 280 260 260 195 Z" fill="#F2994A" />
   <path d="M 230 210 Q 256 340 285 380" fill="none" stroke="#D9782E" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <path d="M 238 205 Q 252 300 262 350" fill="none" stroke="#FFB877" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
   <path d="M 250 195 Q 245 170 220 160" fill="none" stroke="#4CAF50" stroke-width="10" stroke-linecap="round"/>
   <path d="M 258 190 Q 258 160 258 135" fill="none" stroke="#4CAF50" stroke-width="10" stroke-linecap="round"/>
   <path d="M 266 195 Q 275 170 300 160" fill="none" stroke="#4CAF50" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="298" cy="415" r="4" fill="#8A5A34" opacity="0.6"/>
+  <circle cx="308" cy="405" r="3" fill="#8A5A34" opacity="0.5"/>
 </svg>

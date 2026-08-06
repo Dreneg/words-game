@@ -4,15 +4,29 @@
   <ellipse cx="307" cy="140" rx="30" ry="90" fill="#F5F0E6" transform="rotate(12 307 140)" />
   <ellipse cx="205" cy="150" rx="14" ry="60" fill="#F2B9C4" transform="rotate(-12 205 150)" />
   <ellipse cx="307" cy="150" rx="14" ry="60" fill="#F2B9C4" transform="rotate(12 307 150)" />
-  <ellipse cx="256" cy="300" rx="105" ry="95" fill="#F5F0E6" />
-  <ellipse cx="256" cy="330" rx="48" ry="36" fill="#FFFFFF" />
-  <circle cx="256" cy="308" r="9" fill="#E88AA6" />
-  <circle cx="215" cy="280" r="14" fill="#2B2B2B" />
-  <circle cx="297" cy="280" r="14" fill="#2B2B2B" />
-  <circle cx="221" cy="275" r="4" fill="#FFFFFF" />
-  <circle cx="303" cy="275" r="4" fill="#FFFFFF" />
-  <line x1="150" y1="330" x2="210" y2="322" stroke="#C9C2B4" stroke-width="4" stroke-linecap="round" />
-  <line x1="150" y1="345" x2="210" y2="337" stroke="#C9C2B4" stroke-width="4" stroke-linecap="round" />
-  <line x1="362" y1="330" x2="302" y2="322" stroke="#C9C2B4" stroke-width="4" stroke-linecap="round" />
-  <line x1="362" y1="345" x2="302" y2="337" stroke="#C9C2B4" stroke-width="4" stroke-linecap="round" />
+  <ellipse cx="256" cy="248" rx="88" ry="78" fill="#F5F0E6" />
+  <ellipse cx="256" cy="272" rx="42" ry="32" fill="#FFFFFF" />
+  <circle cx="256" cy="252" r="9" fill="#E88AA6" />
+  <circle cx="215" cy="228" r="14" fill="#2B2B2B" />
+  <circle cx="297" cy="228" r="14" fill="#2B2B2B" />
+  <circle cx="221" cy="223" r="4" fill="#FFFFFF" />
+  <circle cx="303" cy="223" r="4" fill="#FFFFFF" />
+  <line x1="150" y1="272" x2="210" y2="264" stroke="#C9C2B4" stroke-width="4" stroke-linecap="round" />
+  <line x1="150" y1="287" x2="210" y2="279" stroke="#C9C2B4" stroke-width="4" stroke-linecap="round" />
+  <line x1="362" y1="272" x2="302" y2="264" stroke="#C9C2B4" stroke-width="4" stroke-linecap="round" />
+  <line x1="362" y1="287" x2="302" y2="279" stroke="#C9C2B4" stroke-width="4" stroke-linecap="round" />
+  <circle cx="368" cy="368" r="27" fill="#FFFFFF" />
+  <ellipse cx="256" cy="372" rx="98" ry="84" fill="#F5F0E6" />
+  <ellipse cx="256" cy="388" rx="48" ry="40" fill="#FFFFFF" />
+  <rect x="216" y="398" width="28" height="54" rx="14" fill="#F5F0E6" />
+  <rect x="268" y="398" width="28" height="54" rx="14" fill="#F5F0E6" />
+  <ellipse cx="230" cy="456" rx="20" ry="13" fill="#FFFFFF" />
+  <ellipse cx="282" cy="456" rx="20" ry="13" fill="#FFFFFF" />
+  <path d="M 200 468 q 4 -14 8 0" fill="none" stroke="#8FCB6E" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 312 468 q 4 -14 8 0" fill="none" stroke="#8FCB6E" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="333" cy="169" rx="3" ry="5" fill="#F2B9C4" />
+  <ellipse cx="333" cy="187" rx="3" ry="5" fill="#F2B9C4" />
+  <ellipse cx="324" cy="178" rx="5" ry="3" fill="#F2B9C4" />
+  <ellipse cx="342" cy="178" rx="5" ry="3" fill="#F2B9C4" />
+  <circle cx="333" cy="178" r="4" fill="#FFD54F" />
 </svg>

@@ -86,11 +86,43 @@ consistent with the existing set by using the same pipeline:
 	`convert` if `magick` isn't found), then look at the PNG. Arc/path math
     for crescent or wedge shapes is easy to get visually wrong blind (e.g.
 	accents landing off the shape they're meant to sit on) — render and
-	check rather than trusting the coordinates on paper.
+	check rather than trusting the coordinates on paper. This also catches
+	accents that are only readable as intended at large size — e.g. a
+	4-circle flower can compress into an unrecognizable "X" at icon scale —
+	so judge every accent at the actual render size, not the source coords.
+  - Creatures get a full body, not a floating head portrait: a body shape
+	plus legs (sitting with visible front paws/legs for pets, standing on
+	4 legs with hooves for farm quadrupeds, perching/floating with feet or
+	a bill for birds). A silhouette that's just ears + head + face reads as
+	unfinished next to the rest of the set.
+  - Give each word its own silhouette. Two icons built from the same base
+	template and only recolored (same body/head/limb shapes, different
+	fill) will look like the same animal twice regardless of palette — the
+	fix is different anatomy and pose, not a different color. If two icons
+	in a category end up structurally interchangeable, redesign one's pose
+	and defining features (e.g. a perching bird with a pointed beak and a
+	twig vs. a floating duck with a flat bill and no visible legs) rather
+	than just swapping hues.
+  - Watch z-order when shapes overlap, especially at a neck/waist seam
+	between a head and a body: draw the piece that should read as "behind"
+	first and the piece that should read as "in front" last. A wider shape
+	painted after a narrower one can visually swallow it even when both
+	use the same fill color (e.g. a body ellipse erasing a head's jawline)
+	— this only shows up in the render, not in the coordinates, so check.
+  - Don't use an axis-aligned rect to fill a space with a sloped edge (e.g.
+	a car window against an angled roofline) — corners will poke past the
+	outline into the background. Use a path shaped to the boundary instead.
+  - Before calling a category done, render the whole set together at icon
+	scale in one contact sheet (montage/tile the PNGs), not just each icon
+	individually — that's what actually surfaces two icons reading as too
+	similar, or one icon looking out of place next to its siblings.
 - After adding files, run `godot --headless --path . --import` (or open the
   editor once) so Godot generates `.import` files and the `.translation`
   resource, and confirm the new key is registered under
-  `[internationalization]` in `project.godot`.
+  `[internationalization]` in `project.godot`. This can have the side effect
+  of rewriting unrelated fields in `project.godot` from stale editor cache
+  (seen: `config/name` silently reset to an old value) — diff `project.godot`
+  after importing and revert anything unrelated to the asset change.
 - These are placeholders: treat both voice and art as swappable for
   professional recordings/illustrations before a real release.
 
