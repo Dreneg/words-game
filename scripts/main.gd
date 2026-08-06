@@ -22,6 +22,10 @@ const WordCardScene := preload("res://scenes/word_card.tscn")
 ## say it again — they may have missed or forgotten it. Keeps repeating on
 ## this interval for as long as the round stays unanswered.
 @export var retry_delay: float = 5.0
+## After this many correct answers, swap in a fresh set of words (see
+## [method reroll_board]) instead of just continuing with the same board.
+## Set to 0 to never reroll.
+@export var correct_answers_per_reroll: int = 3
 
 @onready var card_grid: GridContainer = %CardGrid
 @onready var word_audio_player: AudioStreamPlayer = %WordAudioPlayer
@@ -30,6 +34,9 @@ const WordCardScene := preload("res://scenes/word_card.tscn")
 var displayed_words: Array[Dictionary] = []
 var current_target_key: String = ""
 var last_target_key: String = ""
+## Correct taps since the last reroll (or since the game started). See
+## [member correct_answers_per_reroll].
+var correct_count: int = 0
 ## True only while a word has been spoken and we're waiting for a matching
 ## tap. Taps are ignored outside this window (e.g. before the first prompt).
 var round_active: bool = false
@@ -54,6 +61,127 @@ func spawn_board() -> void:
 		card_grid.add_child(card)
 		card.setup(word.key, word.image)
 		card.selected.connect(_on_card_selected)
+
+
+## Swaps in a fresh random set of [member image_count] words, animating the
+## transition: cards whose word survives into the new set slide to their new
+## grid slot, cards that drop out pop/spin/fade away, and brand-new cards
+## fade in at their slot. Awaits until the whole transition has finished.
+func reroll_board() -> void:
+	var new_words := WordDatabase.get_random_words(image_count)
+	var new_keys: Dictionary = {}
+	for word in new_words:
+		new_keys[word.key] = true
+
+	var old_cards_by_key: Dictionary = {}
+	for child in card_grid.get_children():
+		var card := child as WordCard
+		if card:
+			old_cards_by_key[card.word_key] = card
+
+	if old_cards_by_key.is_empty():
+		displayed_words = new_words
+		spawn_board()
+		return
+
+	var kept: Array[WordCard] = []
+	var removed: Array[WordCard] = []
+	for key: String in old_cards_by_key:
+		var card: WordCard = old_cards_by_key[key]
+		if new_keys.has(key):
+			kept.append(card)
+		else:
+			removed.append(card)
+
+	# Reference frame for the animation: the grid's own position/size right
+	# now, and the uniform cell size/gap every card shares. Captured before
+	# we touch anything, since removing cards from card_grid would otherwise
+	# change its computed layout mid-animation.
+	var grid_origin: Vector2 = card_grid.global_position
+	var card_size: Vector2 = card_grid.get_child(0).size
+	var h_sep: float = card_grid.get_theme_constant("h_separation")
+	var v_sep: float = card_grid.get_theme_constant("v_separation")
+
+	var anim_layer := Control.new()
+	anim_layer.name = "RerollAnimLayer"
+	anim_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	anim_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(anim_layer)
+
+	# Move every current card into the free-form overlay, preserving its
+	# exact on-screen spot, so GridContainer's own layout pass can't fight
+	# the tween while we animate positions by hand.
+	for card in kept + removed:
+		var old_pos := card.global_position
+		card_grid.remove_child(card)
+		anim_layer.add_child(card)
+		card.global_position = old_pos
+
+	var tween := create_tween().set_parallel(true)
+
+	for i in new_words.size():
+		var key: String = new_words[i].key
+		if old_cards_by_key.has(key) and new_keys.has(key):
+			var card: WordCard = old_cards_by_key[key]
+			var target := grid_origin + _slot_offset(i, card_size, h_sep, v_sep)
+			tween.tween_property(card, "global_position", target, 0.5) \
+				.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+
+	for card in removed:
+		var spin: float = deg_to_rad(25.0 if randf() > 0.5 else -25.0)
+		tween.tween_property(card, "scale", Vector2(1.7, 1.7), 0.35) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tween.tween_property(card, "rotation", spin, 0.35)
+		tween.tween_property(card, "modulate:a", 0.0, 0.35)
+
+	await tween.finished
+	for card in removed:
+		card.queue_free()
+
+	# Rebuild the final card list in the new board's order -- reusing kept
+	# cards, instantiating (invisible, for a fade-in) anything brand new.
+	var final_cards: Array[WordCard] = []
+	var fade_in_cards: Array[WordCard] = []
+	for i in new_words.size():
+		var word: Dictionary = new_words[i]
+		if old_cards_by_key.has(word.key) and new_keys.has(word.key):
+			final_cards.append(old_cards_by_key[word.key])
+		else:
+			var card := WordCardScene.instantiate() as WordCard
+			card.modulate.a = 0.0
+			anim_layer.add_child(card) # must precede setup(): it needs %Icon, resolved in _ready()
+			card.size = card_size # anim_layer isn't a Container, so this won't resolve on its own
+			card.setup(word.key, word.image)
+			card.selected.connect(_on_card_selected)
+			card.global_position = grid_origin + _slot_offset(i, card_size, h_sep, v_sep)
+			final_cards.append(card)
+			fade_in_cards.append(card)
+
+	# Reparent into the grid in final order -- it snaps each card to exactly
+	# where we already animated it to, so there's no visible jump.
+	for card in final_cards:
+		anim_layer.remove_child(card)
+		card_grid.add_child(card)
+		card.scale = Vector2.ONE
+		card.rotation = 0.0
+
+	anim_layer.queue_free()
+	displayed_words = new_words
+
+	var fade_tween := create_tween().set_parallel(true)
+	for card in fade_in_cards:
+		fade_tween.tween_property(card, "modulate:a", 1.0, 0.4)
+	await fade_tween.finished
+
+
+## Local offset of grid slot [param index] (0-based, row-major) from the
+## grid's own top-left, given the uniform card size and gaps every card in
+## it shares. Mirrors GridContainer's own layout math so animated cards line
+## up exactly with where the real layout will place them.
+func _slot_offset(index: int, card_size: Vector2, h_sep: float, v_sep: float) -> Vector2:
+	var col := index % columns
+	var row := index / columns
+	return Vector2(col * (card_size.x + h_sep), row * (card_size.y + v_sep))
 
 
 ## Waits [member delay_before_prompt], then speaks the next target word.
@@ -116,6 +244,7 @@ func _on_card_selected(word_key: String) -> void:
 
 	round_active = false
 	last_target_key = current_target_key
+	correct_count += 1
 
 	for child in card_grid.get_children():
 		var card := child as WordCard
@@ -127,4 +256,8 @@ func _on_card_selected(word_key: String) -> void:
 	praise_audio_player.play()
 
 	await get_tree().create_timer(delay_after_correct).timeout
+
+	if correct_answers_per_reroll > 0 and correct_count % correct_answers_per_reroll == 0:
+		await reroll_board()
+
 	start_round()
