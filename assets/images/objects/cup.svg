@@ -5,4 +5,9 @@
   <ellipse cx="230" cy="235" rx="12" ry="24" fill="#7ED1F0" transform="rotate(-12 230 235)" />
   <path d="M 270 160 L 260 210" stroke="#EF5350" stroke-width="10" stroke-linecap="round"/>
   <path d="M 260 210 Q 256 230 275 235" stroke="#EF5350" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <ellipse cx="205" cy="280" rx="4" ry="7" fill="#FFFFFF" opacity="0.5"/>
+  <ellipse cx="305" cy="320" rx="4" ry="6" fill="#FFFFFF" opacity="0.5"/>
+  <ellipse cx="200" cy="330" rx="3" ry="5" fill="#FFFFFF" opacity="0.4"/>
+  <circle cx="256" cy="185" r="10" fill="#EF5350" />
+  <path d="M 256 175 Q 262 160 275 158" fill="none" stroke="#4CAF50" stroke-width="3" stroke-linecap="round"/>
 </svg>

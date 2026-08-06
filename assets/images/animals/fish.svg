@@ -13,4 +13,6 @@
   <ellipse cx="255" cy="256" rx="22" ry="30" fill="#7ED1F0" />
   <circle cx="345" cy="165" r="8" fill="#FFFFFF" opacity="0.6"/>
   <circle cx="365" cy="140" r="5" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="380" cy="200" r="4" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="210" cy="270" r="8" fill="#FF9EB8" opacity="0.35"/>
 </svg>

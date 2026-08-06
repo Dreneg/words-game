@@ -7,4 +7,6 @@
   <ellipse cx="230" cy="260" rx="20" ry="12" fill="#F0F8FF" opacity="0.8"/>
   <path d="M 200 380 q 5 20 -5 35" fill="none" stroke="#AFD8ED" stroke-width="7" stroke-linecap="round" opacity="0.6"/>
   <path d="M 250 390 q 5 20 -5 35" fill="none" stroke="#AFD8ED" stroke-width="7" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 380 230 l 4 10 l 10 4 l -10 4 l -4 10 l -4 -10 l -10 -4 l 10 -4 z" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="150" cy="220" r="4" fill="#FFFFFF" opacity="0.7"/>
 </svg>

@@ -5,4 +5,5 @@
   <circle cx="270" cy="260" r="7" fill="#F2AE4E" opacity="0.6"/>
   <circle cx="330" cy="410" r="7" fill="#FBC96B" opacity="0.8"/>
   <circle cx="360" cy="380" r="4" fill="#FBC96B" opacity="0.8"/>
+  <path d="M 340 350 l 3 8 l 8 3 l -8 3 l -3 8 l -3 -8 l -8 -3 l 8 -3 z" fill="#FBC96B" opacity="0.9"/>
 </svg>
