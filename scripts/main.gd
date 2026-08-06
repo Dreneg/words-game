@@ -18,6 +18,10 @@ const WordCardScene := preload("res://scenes/word_card.tscn")
 @export var delay_before_prompt: float = 2.0
 ## Pause after a correct tap before the next word is spoken, in seconds.
 @export var delay_after_correct: float = 2.0
+## If nobody's tapped the right card this long after a word was (re-)spoken,
+## say it again — they may have missed or forgotten it. Keeps repeating on
+## this interval for as long as the round stays unanswered.
+@export var retry_delay: float = 5.0
 
 @onready var card_grid: GridContainer = %CardGrid
 @onready var word_audio_player: AudioStreamPlayer = %WordAudioPlayer
@@ -76,8 +80,24 @@ func play_prompt() -> void:
 	var word := pick_target_word()
 	current_target_key = word.key
 	round_active = true
+	_speak_target()
+	_watch_for_no_answer(current_target_key)
+
+
+func _speak_target() -> void:
 	word_audio_player.stream = load(WordDatabase.get_audio_path(current_target_key))
 	word_audio_player.play()
+
+
+## Re-speaks the current target every [member retry_delay] seconds for as
+## long as this exact round is still unanswered, in case the player missed
+## or forgot the word. Stops on its own once the round ends (a correct tap,
+## or a new round starting) since [param target] then no longer matches.
+func _watch_for_no_answer(target: String) -> void:
+	while round_active and current_target_key == target:
+		await get_tree().create_timer(retry_delay).timeout
+		if round_active and current_target_key == target:
+			_speak_target()
 
 
 ## Picks a random word from the current board, avoiding an immediate repeat
