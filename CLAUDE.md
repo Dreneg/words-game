@@ -61,7 +61,7 @@ consistent with the existing set by using the same pipeline:
   voice for it the same way and record the choice here.
   ```
   python3 -m edge_tts --voice hu-HU-NoemiNeural --text "<hungarian word>" \
-    --write-media /tmp/<KEY>.mp3
+	--write-media /tmp/<KEY>.mp3
   ffmpeg -y -i /tmp/<KEY>.mp3 -ar 44100 -ac 1 assets/audio/hu/<KEY>.ogg
   ```
   Output must be mono, 44.1kHz, ogg vorbis, filed at

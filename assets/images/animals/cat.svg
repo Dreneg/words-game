@@ -5,6 +5,9 @@
   <polygon points="180,205 205,250 158,245" fill="#F3C6D6" />
   <polygon points="332,205 307,250 354,245" fill="#F3C6D6" />
   <ellipse cx="256" cy="290" rx="120" ry="105" fill="#B3B3B3" />
+  <path d="M 232 210 L 224 186" stroke="#9B9B9B" stroke-width="6" stroke-linecap="round" />
+  <path d="M 256 205 L 256 180" stroke="#9B9B9B" stroke-width="6" stroke-linecap="round" />
+  <path d="M 280 210 L 288 186" stroke="#9B9B9B" stroke-width="6" stroke-linecap="round" />
   <ellipse cx="213" cy="270" rx="20" ry="26" fill="#2B2B2B" />
   <ellipse cx="299" cy="270" rx="20" ry="26" fill="#2B2B2B" />
   <circle cx="219" cy="263" r="6" fill="#FFFFFF" />
@@ -14,4 +17,7 @@
   <line x1="150" y1="330" x2="220" y2="322" stroke="#5A5A5A" stroke-width="4" stroke-linecap="round" />
   <line x1="362" y1="315" x2="292" y2="308" stroke="#5A5A5A" stroke-width="4" stroke-linecap="round" />
   <line x1="362" y1="330" x2="292" y2="322" stroke="#5A5A5A" stroke-width="4" stroke-linecap="round" />
+  <path d="M 256 372 L 232 356 L 232 388 Z" fill="#E88AA6" />
+  <path d="M 256 372 L 280 356 L 280 388 Z" fill="#E88AA6" />
+  <circle cx="256" cy="372" r="8" fill="#D46A87" />
 </svg>

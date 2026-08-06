@@ -16,4 +16,6 @@
   <circle cx="220" cy="235" r="14" fill="#7A4A26" />
   <circle cx="292" cy="235" r="14" fill="#7A4A26" />
   <path d="M 216 285 Q 256 320 296 285" fill="none" stroke="#7A4A26" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="204" cy="270" r="13" fill="#F2994A" opacity="0.45"/>
+  <circle cx="308" cy="270" r="13" fill="#F2994A" opacity="0.45"/>
 </svg>

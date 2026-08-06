@@ -4,8 +4,13 @@
   <ellipse cx="240" cy="256" rx="130" ry="90" fill="#4FB0DE" />
   <polygon points="230,175 280,175 255,140" fill="#2E86AB" />
   <path d="M 200 300 q 30 30 60 5" fill="none" stroke="#2E86AB" stroke-width="10" stroke-linecap="round"/>
+  <path d="M 205 235 q 14 10 0 20" fill="none" stroke="#2E86AB" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <path d="M 230 230 q 14 10 0 20" fill="none" stroke="#2E86AB" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
+  <path d="M 230 260 q 14 10 0 20" fill="none" stroke="#2E86AB" stroke-width="4" stroke-linecap="round" opacity="0.5"/>
   <circle cx="190" cy="240" r="18" fill="#FFFFFF" />
   <circle cx="190" cy="240" r="9" fill="#20303A" />
-  <path d="M 150 270 q 20 12 0 24" fill="none" stroke="#20303A" stroke-width="6" stroke-linecap="round"/>
+  <path d="M 150 270 q 20 12 0 24" fill="none" stroke="#20303A" stroke-width="6" stroke-linecap="round" />
   <ellipse cx="255" cy="256" rx="22" ry="30" fill="#7ED1F0" />
+  <circle cx="345" cy="165" r="8" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="365" cy="140" r="5" fill="#FFFFFF" opacity="0.5"/>
 </svg>

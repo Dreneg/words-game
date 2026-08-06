@@ -4,8 +4,10 @@
   <circle cx="300" cy="210" r="68" fill="#F2994A" />
   <polygon points="360,205 410,222 360,240" fill="#F2C94C" />
   <ellipse cx="230" cy="300" rx="55" ry="38" fill="#FBD9B4" transform="rotate(-10 230 300)" />
+  <path d="M 255 295 Q 300 275 335 305 Q 305 325 255 315 Z" fill="#EB984E" />
   <circle cx="318" cy="195" r="10" fill="#20303A" />
   <circle cx="321" cy="191" r="3" fill="#FFFFFF" />
   <path d="M 250 375 q 10 20 0 35" fill="none" stroke="#C97A2B" stroke-width="8" stroke-linecap="round"/>
   <path d="M 285 375 q 10 20 0 35" fill="none" stroke="#C97A2B" stroke-width="8" stroke-linecap="round"/>
+  <line x1="215" y1="418" x2="325" y2="418" stroke="#8A5A34" stroke-width="10" stroke-linecap="round"/>
 </svg>
