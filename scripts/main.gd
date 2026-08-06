@@ -25,7 +25,7 @@ const WordCardScene := preload("res://scenes/word_card.tscn")
 ## After this many correct answers, swap in a fresh set of words (see
 ## [method reroll_board]) instead of just continuing with the same board.
 ## Set to 0 to never reroll.
-@export var correct_answers_per_reroll: int = 3
+@export var correct_answers_per_reroll: int = 8
 
 @onready var card_grid: GridContainer = %CardGrid
 @onready var word_audio_player: AudioStreamPlayer = %WordAudioPlayer
