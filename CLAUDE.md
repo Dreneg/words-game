@@ -75,18 +75,18 @@ consistent with the existing set by using the same pipeline:
   `assets/images/<category>/`. Godot imports `.svg` directly as a texture,
   so no rasterization step is needed.
   - Give every icon 1–2 small secondary accents on top of the base shapes —
-    an accessory (collar, bow, bell), a texture touch (a couple of scale or
-    peel strokes, a leaf vein), or a shading detail (a highlight, a soft
-    shadow crescent) — so it doesn't read as bare. Keep accents bold and few:
+	an accessory (collar, bow, bell), a texture touch (a couple of scale or
+	peel strokes, a leaf vein), or a shading detail (a highlight, a soft
+	shadow crescent) — so it doesn't read as bare. Keep accents bold and few:
     no fine/hairline linework, no busy texture, and the base silhouette must
     still read instantly at small size — accents support recognition, they
-    don't compete with it.
+	don't compete with it.
   - Sanity-check new/edited icons at actual icon scale before committing:
-    `magick path/to/icon.svg -resize 200x200 preview.png` (ImageMagick, via
-    `convert` if `magick` isn't found), then look at the PNG. Arc/path math
+	`magick path/to/icon.svg -resize 200x200 preview.png` (ImageMagick, via
+	`convert` if `magick` isn't found), then look at the PNG. Arc/path math
     for crescent or wedge shapes is easy to get visually wrong blind (e.g.
-    accents landing off the shape they're meant to sit on) — render and
-    check rather than trusting the coordinates on paper.
+	accents landing off the shape they're meant to sit on) — render and
+	check rather than trusting the coordinates on paper.
 - After adding files, run `godot --headless --path . --import` (or open the
   editor once) so Godot generates `.import` files and the `.translation`
   resource, and confirm the new key is registered under
