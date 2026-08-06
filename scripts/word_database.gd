@@ -35,6 +35,18 @@ const WORDS: Array[Dictionary] = [
 	{"key": "WORD_CUP", "image": "res://assets/images/objects/cup.svg"},
 ]
 
+## Short positive-feedback sounds ("well done!", ...) played when the player
+## taps the correct card. Kept in their own assets/audio/<locale>/praise/
+## folder and key namespace so they never get mixed up with the playable
+## words above. Add a new one by dropping a ~0.5-1.5s clip there and adding
+## its key here.
+const PRAISE_KEYS: Array[String] = [
+	"PRAISE_WELL_DONE",
+	"PRAISE_GREAT",
+	"PRAISE_THATS_IT",
+	"PRAISE_AWESOME",
+]
+
 
 ## Returns up to [param count] distinct word entries ({"key", "image"}),
 ## chosen at random. Clamped to the size of [constant WORDS] if [param count]
@@ -53,11 +65,22 @@ func get_random_words(count: int) -> Array[Dictionary]:
 ## (defaults to the active locale), falling back to the project's fallback
 ## locale (see project.godot) if that locale has no recording yet.
 func get_audio_path(key: String, locale: String = "") -> String:
+	return _resolve_audio_path("res://assets/audio/%s/%s.ogg", key, locale)
+
+
+## Picks one random positive-feedback sound (see [constant PRAISE_KEYS]) and
+## resolves it for [param locale] the same way [method get_audio_path] does.
+func get_random_praise_path(locale: String = "") -> String:
+	var key: String = PRAISE_KEYS.pick_random()
+	return _resolve_audio_path("res://assets/audio/%s/praise/%s.ogg", key, locale)
+
+
+func _resolve_audio_path(path_template: String, key: String, locale: String) -> String:
 	if locale.is_empty():
 		locale = TranslationServer.get_locale()
 	locale = locale.substr(0, 2)
-	var path := "res://assets/audio/%s/%s.ogg" % [locale, key]
+	var path := path_template % [locale, key]
 	if ResourceLoader.exists(path):
 		return path
 	var fallback_locale: String = ProjectSettings.get_setting("internationalization/locale/fallback", "hu")
-	return "res://assets/audio/%s/%s.ogg" % [fallback_locale, key]
+	return path_template % [fallback_locale, key]

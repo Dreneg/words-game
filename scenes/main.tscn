@@ -45,3 +45,6 @@ columns = 4
 
 [node name="WordAudioPlayer" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
+
+[node name="PraiseAudioPlayer" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true

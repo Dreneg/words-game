@@ -21,6 +21,7 @@ const WordCardScene := preload("res://scenes/word_card.tscn")
 
 @onready var card_grid: GridContainer = %CardGrid
 @onready var word_audio_player: AudioStreamPlayer = %WordAudioPlayer
+@onready var praise_audio_player: AudioStreamPlayer = %PraiseAudioPlayer
 
 var displayed_words: Array[Dictionary] = []
 var current_target_key: String = ""
@@ -101,6 +102,9 @@ func _on_card_selected(word_key: String) -> void:
 		if card and card.word_key == current_target_key:
 			card.play_correct_feedback()
 			break
+
+	praise_audio_player.stream = load(WordDatabase.get_random_praise_path())
+	praise_audio_player.play()
 
 	await get_tree().create_timer(delay_after_correct).timeout
 	start_round()
