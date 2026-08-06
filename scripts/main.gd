@@ -55,8 +55,20 @@ func spawn_board() -> void:
 func start_round() -> void:
 	round_active = false
 	current_target_key = ""
+	_reset_cards()
 	await get_tree().create_timer(delay_before_prompt).timeout
 	play_prompt()
+
+
+## Re-enables every card. Needed because [method WordCard.play_correct_feedback]
+## disables the tapped card, and the board is reused across rounds instead of
+## being respawned — without this, a word that comes up again later would be
+## stuck un-tappable from its first correct answer.
+func _reset_cards() -> void:
+	for child in card_grid.get_children():
+		var card := child as WordCard
+		if card:
+			card.disabled = false
 
 
 func play_prompt() -> void:
