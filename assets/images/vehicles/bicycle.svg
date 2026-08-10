@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <circle cx="256" cy="256" r="256" fill="#E8F7EE"/>
+  <path d="M 160 330 L 260 330 L 300 240 L 220 240 L 160 330 Z" fill="none" stroke="#E53935" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="260" y1="330" x2="352" y2="330" stroke="#E53935" stroke-width="14" stroke-linecap="round"/>
+  <rect x="192" y="222" width="56" height="14" rx="7" fill="#2B2B2B" />
+  <path d="M 300 240 L 320 210 L 350 216" fill="none" stroke="#424242" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="160" cy="330" r="70" fill="none" stroke="#2B2B2B" stroke-width="10"/>
+  <circle cx="160" cy="330" r="9" fill="#2B2B2B" />
+  <line x1="160" y1="330" x2="160" y2="268" stroke="#9E9E9E" stroke-width="3"/>
+  <line x1="160" y1="330" x2="205" y2="358" stroke="#9E9E9E" stroke-width="3"/>
+  <line x1="160" y1="330" x2="115" y2="358" stroke="#9E9E9E" stroke-width="3"/>
+  <circle cx="352" cy="330" r="70" fill="none" stroke="#2B2B2B" stroke-width="10"/>
+  <circle cx="352" cy="330" r="9" fill="#2B2B2B" />
+  <line x1="352" y1="330" x2="352" y2="268" stroke="#9E9E9E" stroke-width="3"/>
+  <line x1="352" y1="330" x2="397" y2="358" stroke="#9E9E9E" stroke-width="3"/>
+  <line x1="352" y1="330" x2="307" y2="358" stroke="#9E9E9E" stroke-width="3"/>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <circle cx="256" cy="256" r="256" fill="#FDEFE0"/>
+  <rect x="140" y="150" width="26" height="50" rx="6" fill="#2B2B2B" />
+  <ellipse cx="153" cy="150" rx="18" ry="8" fill="#2B2B2B" />
+  <rect x="90" y="190" width="130" height="140" rx="14" fill="#2E7D32" />
+  <rect x="90" y="250" width="340" height="80" rx="16" fill="#43A047" />
+  <rect x="115" y="205" width="45" height="40" rx="8" fill="#BEE7F5" />
+  <rect x="90" y="305" width="340" height="10" fill="#FDD835" opacity="0.85"/>
+  <circle cx="100" cy="290" r="14" fill="#FFEE58" />
+  <circle cx="150" cy="345" r="36" fill="#2B2B2B" />
+  <circle cx="150" cy="345" r="14" fill="#9B9B9B" />
+  <circle cx="250" cy="345" r="36" fill="#2B2B2B" />
+  <circle cx="250" cy="345" r="14" fill="#9B9B9B" />
+  <circle cx="350" cy="345" r="36" fill="#2B2B2B" />
+  <circle cx="350" cy="345" r="14" fill="#9B9B9B" />
+  <line x1="150" y1="345" x2="350" y2="345" stroke="#616161" stroke-width="6" stroke-linecap="round"/>
+</svg>
