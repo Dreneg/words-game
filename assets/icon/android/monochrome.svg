@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Android 13+ themed-icon layer: single flat color, system applies its own
+       tint at runtime. Silhouette only (outer body/wings/tufts/beak/feet) -
+       fine detail like the eyes would just vanish once tinted flat, so it's
+       left out. Same 0.78x safe-zone scale as the foreground layer. -->
+  <g transform="translate(256 256) scale(0.78) translate(-256 -256)">
+    <ellipse cx="122" cy="330" rx="46" ry="86" fill="#FFFFFF" transform="rotate(-18 122 330)"/>
+    <ellipse cx="390" cy="330" rx="46" ry="86" fill="#FFFFFF" transform="rotate(18 390 330)"/>
+    <ellipse cx="256" cy="286" rx="176" ry="166" fill="#FFFFFF"/>
+    <path d="M 178 128 L 158 76 L 206 108 Z" fill="#FFFFFF"/>
+    <path d="M 334 128 L 354 76 L 306 108 Z" fill="#FFFFFF"/>
+    <polygon points="256,278 234,312 278,312" fill="#FFFFFF"/>
+    <ellipse cx="220" cy="440" rx="20" ry="12" fill="#FFFFFF"/>
+    <ellipse cx="292" cy="440" rx="20" ry="12" fill="#FFFFFF"/>
+  </g>
+</svg>
