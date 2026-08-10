@@ -186,11 +186,14 @@ func _slot_offset(index: int, card_size: Vector2, h_sep: float, v_sep: float) ->
 
 
 ## Waits [member delay_before_prompt], then speaks the next target word.
+## process_always=false so this halts while the tree is paused (parent mode)
+## instead of speaking a new prompt underneath the gate/settings screen --
+## see docs/parent-mode.md.
 func start_round() -> void:
 	round_active = false
 	current_target_key = ""
 	_reset_cards()
-	await get_tree().create_timer(delay_before_prompt).timeout
+	await get_tree().create_timer(delay_before_prompt, false).timeout
 	play_prompt()
 
 
@@ -222,9 +225,10 @@ func _speak_target() -> void:
 ## long as this exact round is still unanswered, in case the player missed
 ## or forgot the word. Stops on its own once the round ends (a correct tap,
 ## or a new round starting) since [param target] then no longer matches.
+## process_always=false: see [method start_round].
 func _watch_for_no_answer(target: String) -> void:
 	while round_active and current_target_key == target:
-		await get_tree().create_timer(retry_delay).timeout
+		await get_tree().create_timer(retry_delay, false).timeout
 		if round_active and current_target_key == target:
 			_speak_target()
 
@@ -256,7 +260,8 @@ func _on_card_selected(word_key: String) -> void:
 	praise_audio_player.stream = load(WordDatabase.get_random_praise_path())
 	praise_audio_player.play()
 
-	await get_tree().create_timer(delay_after_correct).timeout
+	# process_always=false: see [method start_round].
+	await get_tree().create_timer(delay_after_correct, false).timeout
 
 	if correct_answers_per_reroll > 0 and correct_count % correct_answers_per_reroll == 0:
 		await reroll_board()

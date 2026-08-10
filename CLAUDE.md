@@ -65,18 +65,41 @@ lessons learned:
   color, and audio/voice.
 - Positive reinforcement on wrong answers rather than harsh failure states.
 - Keep screens uncluttered — a small number of clear image choices at a time.
+- Exception: **parent mode** (see below) deliberately requires reading a
+  4-digit number — that's intentional, since it's only reachable via a
+  5-tap adult gesture, not part of the toddler-facing game loop.
+
+## Parent mode
+
+A gesture-gated settings area, hidden from the toddler player: 5 taps on the
+background opens a code challenge, and the correct code opens a settings
+screen. Settings persist locally (works in both the Android and web
+builds) via a generic `Settings` autoload, so new settings controls can be
+added later without touching the gesture/gate/storage plumbing. Full
+architecture — the gesture detector, the countdown/retry mechanism, the
+pause-then-restart lifecycle, and the storage API:
+
+@docs/parent-mode.md
 
 ## Project structure (establish as content is added)
 
 Keep a conventional Godot layout; create folders as needed rather than
 dumping everything at the root:
 
-- `scenes/` — `.tscn` scenes, PascalCase or feature-based subfolders.
+- `scenes/` — `.tscn` scenes, PascalCase or feature-based subfolders (e.g.
+  `scenes/parent/` for the parent-mode gate/settings screens).
 - `scripts/` — `.gd` scripts, `snake_case.gd` filenames, matching
-  `class_name` in PascalCase when a script defines a reusable class.
+  `class_name` in PascalCase when a script defines a reusable class (e.g.
+  `scripts/parent/` for parent-mode scripts; autoloads stay at the
+  `scripts/` root alongside `word_database.gd`/`settings.gd`).
 - `assets/images/` — game art, organized by category/word set.
 - `assets/audio/<locale>/` — per-language voice-over and SFX.
-- `localization/` — translation CSV/PO files.
+- `assets/fonts/`, `assets/theme/` — the project-wide UI font/`Theme`
+  resource (see @docs/parent-mode.md's "Visuals" section — any font swap
+  must be re-checked for full Hungarian glyph coverage, not just English).
+- `localization/` — translation CSV/PO files (`words.csv` for playable
+  vocabulary, coupled 1:1 to icons/audio; separate CSVs like `ui.csv` for
+  UI chrome text that has no audio asset).
 - `docs/` — longer reference docs pulled into this file via `@docs/*.md`
   imports (keep this file itself short and scannable; put anything long
   and self-contained here instead of growing a section in place).
