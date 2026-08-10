@@ -163,3 +163,33 @@ the Godot editor (or `godot --path .` from the project root) rather than
 assuming correctness from reading code alone. When testing Android-specific
 behavior (touch input, screen sizes), note that in your summary since it
 can't be fully verified from the editor alone.
+
+### Automated tests (GdUnit4)
+
+Unit tests for pure GDScript logic (e.g. `word_database.gd`) live under
+`test/`, named `<subject>_test.gd`, using the [GdUnit4](https://github.com/MikeSchulze/gdUnit4)
+framework vendored at `addons/gdUnit4` (v6.2.0, chosen for its stated Godot
+4.7 support — check `addons/gdUnit4/README.md`'s version badges before
+upgrading). A test suite extends `GdUnitTestSuite` and asserts with
+`assert_that(...)`; see `test/word_database_test.gd` for the pattern.
+Autoloads (e.g. `WordDatabase`) are available in tests exactly as in the
+running game, since the test runner boots the full project.
+
+Run the whole suite headlessly from the project root:
+
+```
+godot --headless --path . -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd \
+  -a res://test -c --ignoreHeadlessMode
+```
+
+(`-a` adds the directory/file to run, `-c` runs the full set instead of
+stopping at the first failure, `--ignoreHeadlessMode` is required — this
+GdUnit4 version refuses to run in `--headless` mode without it, since
+`InputEvent`-driven UI tests, e.g. via `scene_runner`, don't work headless.
+Pure-logic tests like the ones here are unaffected.) This writes an
+`.xml`/`.html` report under `reports/` (gitignored) — safe to delete after
+reading. Note: some third-party docs/tutorials for GdUnit4 reference an
+older `--run-tests` CLI flag; that flag doesn't exist in v6.2.0, use `-a`
+as above.
+
+From the editor: open the GdUnit4 panel (bottom dock) and click "Run All".
