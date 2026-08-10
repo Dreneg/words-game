@@ -8,3 +8,8 @@ extends RefCounted
 ## Number of cards on the board. Written by ParentSettings, read by
 ## [method Main._ready] to override [member Main.image_count] at startup.
 const CARD_COUNT := "card_count"
+
+## Which word categories (see [method WordDatabase.get_all_categories]) the
+## game draws words from, as an Array[String]. Written by ParentSettings,
+## read by [method Main._apply_stored_enabled_categories] at startup.
+const ENABLED_CATEGORIES := "enabled_categories"

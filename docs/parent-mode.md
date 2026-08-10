@@ -159,12 +159,40 @@ with the rest of the scene.
 ## Local settings storage
 
 The `Settings` autoload (`scripts/settings.gd`) is a generic key/value store
-backed by `ConfigFile` at `user://settings.cfg`:
+backed by `ConfigFile` at `user://settings.cfg` (`Settings.DEFAULT_PATH`):
 
 ```gdscript
 Settings.get_value("some_key", default_value)
 Settings.set_value("some_key", new_value)   # writes to disk immediately
 ```
+
+**Tests must never let this touch a developer's real save file.** Several
+tests simulate a real tap through `ParentSettings`' actual production
+signal handlers (e.g. `.pressed.emit()` on a card-count button), which
+correctly calls `Settings.set_value()` with its default `persist=true` —
+that's the real, intended behavior being tested, not a test mistake, so
+`persist: false` discipline in the test itself doesn't help here. Any test
+suite that exercises those code paths (or otherwise touches `Settings`)
+must redirect it first:
+
+```gdscript
+const SCRATCH_PATH := "user://test_settings.cfg"
+
+func before() -> void:      # once per suite, not per test
+    Settings.use_path_for_testing(SCRATCH_PATH)
+
+func after() -> void:
+    Settings.use_path_for_testing(Settings.DEFAULT_PATH)
+    # ...and delete the scratch file (see any of the test files below).
+```
+
+This was **missed initially** — for a while, running this project's own
+test suite repeatedly (as happened a lot while building this feature) was
+quietly overwriting the real `user://settings.cfg` on whatever machine ran
+it, with whatever values the most recently added persist=true test path
+happened to leave behind. That's a very plausible explanation for a "the
+default should be X but shows Y" report that has nothing to do with the
+production code being wrong.
 
 **To add a setting, two things need to happen, not one:**
 
@@ -259,6 +287,63 @@ buttons in the game; if more radio-style settings show up later, consider
 promoting this into `assets/theme/game_theme.tres` as `Button.styles.pressed`
 instead of copy-pasting the override onto every new button.
 
+### Worked example: enabled categories (`WordDatabase.get_all_categories()`)
+
+The parent can also turn whole word categories on/off (e.g. hide "colors"
+if it's confusing rather than helpful) — at least
+`WordDatabase.MIN_ENABLED_CATEGORIES` (2) have to stay on, so the board
+never runs out of distinct words. Two things had to be centralized for
+this to stay low-maintenance as more categories get added later:
+
+- **Which categories exist at all.** `WordDatabase.get_all_categories()`
+  derives this from `WORDS`' image paths (`assets/images/<category>/...`)
+  rather than a separate hand-maintained list — a word's category was
+  already implied by which folder its icon lives in, so a second list
+  would just be one more thing to keep in sync (and forget to). Adding a
+  category is exactly what `docs/asset-pipeline.md` already says for
+  adding a word, plus one `CATEGORY_<NAME>` row in `localization/ui.csv`
+  (see Localization below) — nothing else.
+- **The minimum-2 rule.** `WordDatabase.MIN_ENABLED_CATEGORIES` is the one
+  place that number lives; both `ParentSettings` (to decide when to lock
+  the checkboxes) and `Main` (to decide whether a stored value is still
+  valid) read it from there rather than each hand-coding `2`.
+
+`ParentSettings._setup_category_list()` builds one `CheckBox` per category
+**in code**, not as hand-authored `.tscn` nodes (unlike the fixed 3-button
+card-count row) — since the whole point is that this list grows on its own
+as categories are added, a fixed set of scene nodes would need editing
+every time, defeating that. Each checkbox's *node name* is set to the
+category name and read back on toggle (same reasoning as the card-count
+buttons using node name over label text, see above) — its displayed text
+is `tr("CATEGORY_%s" % category.to_upper())`, so an added category with no
+corresponding `localization/ui.csv` row just shows its raw key
+(`"CATEGORY_DINOSAURS"`) as a visible reminder to add one, rather than
+failing silently.
+
+**Enforcing "at least 2" is a UI lock, not a rejected action.**
+`_update_category_lock_state()` runs after every toggle: once exactly
+`MIN_ENABLED_CATEGORIES` boxes are checked, *those specific checked boxes*
+get `disabled = true` (so they can't be unchecked further) while any
+still-unchecked ones stay tappable (checking one more re-enables
+everything, since the lock check only re-runs against the current count).
+This was chosen over silently reverting a disallowed uncheck because it's
+discoverable — the parent can see which boxes are locked and infer why,
+rather than tapping a box and watching nothing happen. `Main` re-validates
+independently in `_apply_stored_enabled_categories()` (filters out
+categories that no longer exist, falls back to no filter at all if fewer
+than `MIN_ENABLED_CATEGORIES` survive that) rather than trusting the UI's
+enforcement blindly — same "stored data could be stale or hand-edited"
+posture as the card-count setting.
+
+**Known limitation, not solved here:** categories vary a lot in size right
+now (`nature` has 4 words, `food` has 5, others have 10) — enabling just
+two small categories can leave fewer words available than a large card
+count asks for. `WordDatabase.get_random_words()` already clamps to
+whatever's actually available rather than erroring, so the board just
+comes up smaller than requested; there's no cross-validation between the
+card-count and categories settings to prevent that combination. Worth
+revisiting if it turns out to matter in practice.
+
 Persistence here is explicitly best-effort, not mission-critical: any
 load/save failure (missing file on first run, a corrupt file, a web/HTML5
 `user://` quirk) is logged via `push_warning` and swallowed rather than
@@ -310,6 +395,23 @@ any gets added later.
   gets the Bold weight project-wide for a chunkier, more obviously-tappable
   look, and the gate/settings screens' `TitleLabel`/`CodeDisplay` opt into
   Bold locally for header emphasis.
+- **Checkbox tint is a separate property from text color — easy to miss.**
+  The category checklist's checkmarks initially rendered white-on-cream
+  (poor contrast) even though `Button/colors/font_color` was already set
+  correctly, because `CheckBox` has its own `checkbox_checked_color`/
+  `checkbox_unchecked_color` theme colors that tint the check *icon*, wholly
+  separate from `font_color` (which only affects the adjacent label text).
+  Godot's per-type theme fallback (`CheckBox` → `Button`, since `CheckBox`
+  extends `Button`) covers properties both types share, like `font_color`,
+  but obviously can't cover `checkbox_checked_color` since plain `Button`
+  doesn't have that property at all — there's nothing to fall back to, so
+  it fell all the way through to the engine's built-in default (white).
+  Fixed by setting `CheckBox/colors/checkbox_checked_color` (and
+  `_unchecked_color`, for consistency) explicitly in `game_theme.tres`.
+  **Any future control type with its own dedicated theme colors needs the
+  same check** — don't assume setting `font_color`/`Button.*` covers
+  everything; inspect `ThemeDB.get_default_theme().get_color_list("<Type>")`
+  for the actual type before trusting inheritance to carry a color over.
 
 ## Localization
 
@@ -352,22 +454,34 @@ Mirrors `docs/testing.md`'s three-tier pattern, under `test/parent/`:
   `deadline_seconds` to a tiny value before calling `start()`, and drive
   button `pressed` signals directly — covering correct entry, wrong-entry
   retry, deadline expiry, and settings' close signal.
-  `settings_test.gd` exercises the real `Settings` autoload (default
-  fallback, round-trip) using `persist: false` so tests don't write to a
-  developer's real `user://settings.cfg`. `parent_settings_test.gd` also
+  `settings_test.gd`, `parent_settings_test.gd`, and
+  `main_settings_integration_test.gd` all redirect `Settings` to a scratch
+  file via `before()`/`after()` (see "Local settings storage" above) rather
+  than trusting `persist: false` alone. `parent_settings_test.gd` also
   covers the card-count row (labels show the RxC shape not the bare count,
   correct button pressed for a stored/missing value, tapping one saves it)
-  — each of those tests restores `SettingsKeys.CARD_COUNT` to
-  `BoardLayout.DEFAULT_COUNT` afterward, since `Settings` is a real shared
-  autoload instance across the whole test run, not reset between
-  tests/suites. `board_layout_test.gd` is pure logic (no scene at all) for
-  `columns_for`/`label_for`, including their unknown-count fallbacks.
-- **`main_settings_integration_test.gd`:** the other half of the card-count
-  feature — that `Main` actually *reads* a stored value (and derives the
-  matching grid `columns`) on startup, not just that `ParentSettings` can
-  write one. Sets `Settings` directly, then creates its own `scene_runner`
-  per test (rather than a shared `before_test()`) since the value has to
-  already be in place before `Main._ready()` runs.
+  and the category checklist (one checkbox per category, reflects a stored
+  subset, toggling saves it, that unchecking down to the minimum locks the
+  remaining checked boxes and checking a third one unlocks them again, and
+  — its own extra-isolated test, redirecting to a second, guaranteed
+  never-yet-created file rather than the suite's shared scratch file — that
+  a *genuinely* fresh install, not just "reset to the default value", has
+  every category enabled) — each of the state-mutating tests still restores
+  `SettingsKeys.CARD_COUNT`/`SettingsKeys.ENABLED_CATEGORIES` to their
+  defaults afterward, since the suite's scratch file is shared across every
+  test *within* that file for its whole run. `board_layout_test.gd` is pure
+  logic (no scene at all) for `columns_for`/`label_for`, including their
+  unknown-count fallbacks; `word_database_test.gd` similarly covers
+  `get_all_categories()` and `get_random_words()`'s category filter
+  (including that an empty/omitted `categories` param still means "no
+  filter", preserving every pre-existing call site's behavior).
+- **`main_settings_integration_test.gd`:** the other half of both settings
+  — that `Main` actually *reads* stored values (card count, deriving the
+  matching grid `columns`; enabled categories, filtering `displayed_words`)
+  on startup, not just that `ParentSettings` can write them. Sets
+  `Settings` directly, then creates its own `scene_runner` per test (rather
+  than a shared `before_test()`) since the value has to already be in
+  place before `Main._ready()` runs.
 - **Integration:** one minimal `scene_runner` test drives
   `TapGestureDetector.register_tap()` directly on the real `%Background`
   node inside the real `main.tscn`, five times, and asserts a `ParentGate`

@@ -124,6 +124,16 @@ toggle_mode = true
 button_group = SubResource("ButtonGroup_card_count")
 text = "3x5"
 
+[node name="CategoriesLabel" type="Label" parent="PanelContainer/CenterContainer/VBoxContainer/ContentContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "PARENT_SETTINGS_CATEGORIES_LABEL"
+
+[node name="CategoryList" type="VBoxContainer" parent="PanelContainer/CenterContainer/VBoxContainer/ContentContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
 [node name="CloseButton" type="Button" parent="PanelContainer/CenterContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

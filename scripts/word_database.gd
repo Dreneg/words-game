@@ -1,11 +1,18 @@
 extends Node
 ## Autoload singleton exposing the master word list: each entry pairs a
 ## localization key (see localization/words.csv) with its placeholder icon.
+## A word's category (for the parent settings "enabled categories" list --
+## see [method get_all_categories]) is derived from the icon's folder, not
+## stored separately -- there is deliberately only one place that says which
+## category a word belongs to.
 ##
 ## To add a new word: add a row to localization/words.csv, drop the icon
 ## under assets/images/<category>/, drop audio under
 ## assets/audio/<locale>/<KEY>.ogg, then add one entry below. No other code
-## changes needed.
+## changes needed. To add a new *category*: same steps, plus a
+## CATEGORY_<NAME> row in localization/ui.csv for its settings-screen label
+## (see docs/parent-mode.md) -- everything else (the settings checkbox list,
+## word filtering) picks it up automatically.
 
 const WORDS: Array[Dictionary] = [
 	{"key": "WORD_DOG", "image": "res://assets/images/animals/dog.svg"},
@@ -67,18 +74,49 @@ const PRAISE_KEYS: Array[String] = [
 	"PRAISE_AWESOME",
 ]
 
+## Fewest categories the parent settings screen will ever let stay enabled
+## at once, and the floor [method Main._apply_stored_enabled_categories]
+## re-validates a stored value against -- below this there may not be
+## enough distinct words left for a board. See docs/parent-mode.md.
+const MIN_ENABLED_CATEGORIES := 2
+
 
 ## Returns up to [param count] distinct word entries ({"key", "image"}),
-## chosen at random. Clamped to the size of [constant WORDS] if [param count]
-## asks for more words than exist.
-func get_random_words(count: int) -> Array[Dictionary]:
+## chosen at random from [param categories] (see [method get_all_categories]),
+## or every category if [param categories] is empty/omitted. Clamped to the
+## size of the filtered pool if [param count] asks for more words than exist.
+func get_random_words(count: int, categories: Array[String] = []) -> Array[Dictionary]:
 	var pool := WORDS.duplicate()
+	if not categories.is_empty():
+		pool = pool.filter(func(word: Dictionary) -> bool: return categories.has(_category_for_word(word)))
 	pool.shuffle()
 	count = clampi(count, 0, pool.size())
 	var result: Array[Dictionary] = []
 	for i in count:
 		result.append(pool[i])
 	return result
+
+
+## Every distinct category name, derived from [constant WORDS]'s image
+## paths (the folder under assets/images/) rather than hand-listed anywhere
+## -- adding a new category is just dropping words into a new
+## assets/images/<category>/ folder and a matching CATEGORY_<NAME> entry in
+## localization/ui.csv; this list (and therefore the parent settings
+## screen's checkbox list) picks it up automatically. Order is first-seen
+## in [constant WORDS], not alphabetical, but stable.
+func get_all_categories() -> Array[String]:
+	var seen: Dictionary = {}
+	var categories: Array[String] = []
+	for word: Dictionary in WORDS:
+		var category := _category_for_word(word)
+		if not seen.has(category):
+			seen[category] = true
+			categories.append(category)
+	return categories
+
+
+func _category_for_word(word: Dictionary) -> String:
+	return (word.image as String).get_base_dir().get_file()
 
 
 ## Resolves the spoken-word audio file for [param key] in [param locale]

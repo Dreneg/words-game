@@ -54,6 +54,39 @@ func test_get_random_praise_path_resolves_to_a_known_key() -> void:
 		return path == "res://assets/audio/hu/praise/%s.ogg" % key)).is_true()
 
 
+func test_get_all_categories_returns_every_distinct_folder() -> void:
+	var categories := WordDatabase.get_all_categories()
+	# Keep in sync with assets/images/: animals, colors, food, nature,
+	# objects, vehicles.
+	assert_that(categories).contains_exactly_in_any_order(
+		["animals", "colors", "food", "nature", "objects", "vehicles"])
+
+
+func test_get_all_categories_has_no_duplicates() -> void:
+	var categories := WordDatabase.get_all_categories()
+	assert_that(categories.size()).is_equal(_unique_count(categories))
+
+
+func test_get_random_words_filters_to_requested_categories() -> void:
+	var words := WordDatabase.get_random_words(WORD_COUNT, ["animals"])
+	assert_that(words).is_not_empty()
+	for word: Dictionary in words:
+		assert_that(word.image).contains("/assets/images/animals/")
+
+
+func test_get_random_words_with_multiple_categories_only_draws_from_those() -> void:
+	var words := WordDatabase.get_random_words(WORD_COUNT, ["animals", "vehicles"])
+	for word: Dictionary in words:
+		var in_animals: bool = word.image.contains("/assets/images/animals/")
+		var in_vehicles: bool = word.image.contains("/assets/images/vehicles/")
+		assert_that(in_animals or in_vehicles).is_true()
+
+
+func test_get_random_words_empty_categories_means_no_filter() -> void:
+	var words := WordDatabase.get_random_words(WORD_COUNT, [])
+	assert_that(words).has_size(WORD_COUNT)
+
+
 func _unique_count(values: Array[String]) -> int:
 	var seen := {}
 	for value in values:

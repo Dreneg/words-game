@@ -39,6 +39,12 @@ const WordCardScene := preload("res://scenes/word_card.tscn")
 @onready var word_audio_player: AudioStreamPlayer = %WordAudioPlayer
 @onready var praise_audio_player: AudioStreamPlayer = %PraiseAudioPlayer
 
+## Word categories (see [method WordDatabase.get_all_categories]) the board
+## draws from; empty means no filter (every category). Resolved once in
+## [method _ready] from the parent-chosen Settings value, same as
+## [member image_count]/[member columns] -- see
+## [method _apply_stored_enabled_categories].
+var enabled_categories: Array[String] = []
 var displayed_words: Array[Dictionary] = []
 var current_target_key: String = ""
 var last_target_key: String = ""
@@ -52,6 +58,7 @@ var round_active: bool = false
 
 func _ready() -> void:
 	_apply_stored_card_count()
+	_apply_stored_enabled_categories()
 	columns = BoardLayout.columns_for(image_count, columns)
 	card_grid.columns = columns
 	spawn_board()
@@ -69,6 +76,29 @@ func _apply_stored_card_count() -> void:
 		image_count = stored
 
 
+## Overrides [member enabled_categories] with the parent-chosen set from
+## [autoload Settings], filtered to categories that still actually exist
+## and re-checked against [constant WordDatabase.MIN_ENABLED_CATEGORIES] --
+## the settings screen itself prevents saving fewer, but this re-validates
+## rather than trusting stored data blindly (same reasoning as
+## [method _apply_stored_card_count]). Falls back to no filter (every
+## category) on first run or if the stored value doesn't hold up.
+func _apply_stored_enabled_categories() -> void:
+	var all_categories := WordDatabase.get_all_categories()
+	var stored: Variant = Settings.get_value(SettingsKeys.ENABLED_CATEGORIES, all_categories)
+	var valid: Array[String] = []
+	if stored is Array:
+		for entry: Variant in stored:
+			if entry is String and all_categories.has(entry):
+				valid.append(entry)
+	# Not a ternary: `valid if ... else []` infers as plain untyped Array,
+	# which fails to assign into the typed Array[String] member below.
+	if valid.size() >= WordDatabase.MIN_ENABLED_CATEGORIES:
+		enabled_categories = valid
+	else:
+		enabled_categories = []
+
+
 ## Instantiates a fresh set of [member image_count] random, distinct cards.
 ## Called once at startup; the board stays put for the rest of the session
 ## while [method start_round] cycles through target words.
@@ -76,7 +106,7 @@ func spawn_board() -> void:
 	for child in card_grid.get_children():
 		child.queue_free()
 
-	displayed_words = WordDatabase.get_random_words(image_count)
+	displayed_words = WordDatabase.get_random_words(image_count, enabled_categories)
 	for word in displayed_words:
 		var card := WordCardScene.instantiate() as WordCard
 		card_grid.add_child(card)
@@ -89,7 +119,7 @@ func spawn_board() -> void:
 ## grid slot, cards that drop out pop/spin/fade away, and brand-new cards
 ## fade in at their slot. Awaits until the whole transition has finished.
 func reroll_board() -> void:
-	var new_words := WordDatabase.get_random_words(image_count)
+	var new_words := WordDatabase.get_random_words(image_count, enabled_categories)
 	var new_keys: Dictionary = {}
 	for word in new_words:
 		new_keys[word.key] = true
