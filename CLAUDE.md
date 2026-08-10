@@ -50,81 +50,13 @@ not code changes:
 ## Placeholder asset generation
 
 No real voice actor or illustrator is attached to this project yet, so word
-audio and images are AI-generated placeholders. Keep every new word
-consistent with the existing set by using the same pipeline:
+audio and images are AI-generated placeholders, kept consistent with the
+existing set via a fixed pipeline (voice: `edge-tts` with a single pinned
+Hungarian voice; images: hand-authored flat SVG icons with a documented
+detail/consistency checklist). Full pipeline, commands, and icon-design
+lessons learned:
 
-- **Voice:** Microsoft Edge neural TTS via the `edge-tts` Python package
-  (`python3 -m pip install --user edge-tts`). Always use voice
-  **`hu-HU-NoemiNeural`** (female, "Friendly, Positive") for Hungarian —
-  don't mix voices within a locale, or words will sound like they came from
-  different speakers. If another locale is added later, pick one neural
-  voice for it the same way and record the choice here.
-  ```
-  python3 -m edge_tts --voice hu-HU-NoemiNeural --text "<hungarian word>" \
-	--write-media /tmp/<KEY>.mp3
-  ffmpeg -y -i /tmp/<KEY>.mp3 -ar 44100 -ac 1 assets/audio/hu/<KEY>.ogg
-  ```
-  Output must be mono, 44.1kHz, ogg vorbis, filed at
-  `assets/audio/<locale>/<KEY>.ogg` where `<KEY>` matches the
-  `localization/words.csv` key exactly. This requires network access
-  (cloud TTS, not a local/offline model) — flag it if generating audio in an
-  offline environment.
-- **Images:** hand-authored flat SVG icons (no photorealistic/AI image
-  generation is available in this environment) — bold single-color shapes on
-  a soft circular background, consistent with the existing icons under
-  `assets/images/<category>/`. Godot imports `.svg` directly as a texture,
-  so no rasterization step is needed.
-  - Give every icon 1–2 small secondary accents on top of the base shapes —
-	an accessory (collar, bow, bell), a texture touch (a couple of scale or
-	peel strokes, a leaf vein), or a shading detail (a highlight, a soft
-	shadow crescent) — so it doesn't read as bare. Keep accents bold and few:
-    no fine/hairline linework, no busy texture, and the base silhouette must
-    still read instantly at small size — accents support recognition, they
-	don't compete with it.
-  - Sanity-check new/edited icons at actual icon scale before committing:
-	`magick path/to/icon.svg -resize 200x200 preview.png` (ImageMagick, via
-	`convert` if `magick` isn't found), then look at the PNG. Arc/path math
-    for crescent or wedge shapes is easy to get visually wrong blind (e.g.
-	accents landing off the shape they're meant to sit on) — render and
-	check rather than trusting the coordinates on paper. This also catches
-	accents that are only readable as intended at large size — e.g. a
-	4-circle flower can compress into an unrecognizable "X" at icon scale —
-	so judge every accent at the actual render size, not the source coords.
-  - Creatures get a full body, not a floating head portrait: a body shape
-	plus legs (sitting with visible front paws/legs for pets, standing on
-	4 legs with hooves for farm quadrupeds, perching/floating with feet or
-	a bill for birds). A silhouette that's just ears + head + face reads as
-	unfinished next to the rest of the set.
-  - Give each word its own silhouette. Two icons built from the same base
-	template and only recolored (same body/head/limb shapes, different
-	fill) will look like the same animal twice regardless of palette — the
-	fix is different anatomy and pose, not a different color. If two icons
-	in a category end up structurally interchangeable, redesign one's pose
-	and defining features (e.g. a perching bird with a pointed beak and a
-	twig vs. a floating duck with a flat bill and no visible legs) rather
-	than just swapping hues.
-  - Watch z-order when shapes overlap, especially at a neck/waist seam
-	between a head and a body: draw the piece that should read as "behind"
-	first and the piece that should read as "in front" last. A wider shape
-	painted after a narrower one can visually swallow it even when both
-	use the same fill color (e.g. a body ellipse erasing a head's jawline)
-	— this only shows up in the render, not in the coordinates, so check.
-  - Don't use an axis-aligned rect to fill a space with a sloped edge (e.g.
-	a car window against an angled roofline) — corners will poke past the
-	outline into the background. Use a path shaped to the boundary instead.
-  - Before calling a category done, render the whole set together at icon
-	scale in one contact sheet (montage/tile the PNGs), not just each icon
-	individually — that's what actually surfaces two icons reading as too
-	similar, or one icon looking out of place next to its siblings.
-- After adding files, run `godot --headless --path . --import` (or open the
-  editor once) so Godot generates `.import` files and the `.translation`
-  resource, and confirm the new key is registered under
-  `[internationalization]` in `project.godot`. This can have the side effect
-  of rewriting unrelated fields in `project.godot` from stale editor cache
-  (seen: `config/name` silently reset to an old value) — diff `project.godot`
-  after importing and revert anything unrelated to the asset change.
-- These are placeholders: treat both voice and art as swappable for
-  professional recordings/illustrations before a real release.
+@docs/asset-pipeline.md
 
 ## Design constraints (target audience: toddlers learning to speak)
 
@@ -145,6 +77,9 @@ dumping everything at the root:
 - `assets/images/` — game art, organized by category/word set.
 - `assets/audio/<locale>/` — per-language voice-over and SFX.
 - `localization/` — translation CSV/PO files.
+- `docs/` — longer reference docs pulled into this file via `@docs/*.md`
+  imports (keep this file itself short and scannable; put anything long
+  and self-contained here instead of growing a section in place).
 
 ## GDScript conventions
 
@@ -168,63 +103,8 @@ can't be fully verified from the editor alone.
 
 Tests live under `test/`, named `<subject>_test.gd`, using
 [GdUnit4](https://github.com/MikeSchulze/gdUnit4) vendored at
-`addons/gdUnit4` (v6.2.0, chosen for its stated Godot 4.7 support — check
-`addons/gdUnit4/README.md`'s version badges before upgrading). A test suite
-extends `GdUnitTestSuite` and asserts with `assert_that(...)`. Autoloads
-(e.g. `WordDatabase`) are available in tests exactly as in the running game,
-since the test runner boots the full project. `main.gd` has a `class_name
-Main` (matching `WordCard`'s own `class_name`) purely so tests can hold a
-statically-typed reference to it — this project otherwise has one scene per
-script and wouldn't normally need one.
+`addons/gdUnit4`. Full guide — test patterns (pure logic / single scene /
+full scene_runner integration), version-specific `scene_runner` gotchas,
+and the headless CLI invocation:
 
-Three patterns, by what they touch:
-
-- **Pure logic, no scene tree** (`test/word_database_test.gd`,
-  `test/main_test.gd`): instantiate the script directly with `.new()` (must
-  be typed, e.g. `var main: Main = auto_free(Main.new())` — `auto_free()`
-  returns `Variant`, and this project treats the resulting untyped-inference
-  warning as a hard error) and call methods/set fields directly. Runs
-  instantly.
-- **A single scene in isolation** (`test/word_card_test.gd`): instantiate
-  the `.tscn` (not just the script) and `add_child(...)` it so `_ready()`
-  actually runs and resolves its `%UniqueName` references, then interact
-  with it directly. Runs instantly.
-- **The full game loop through the real scene** (`test/main_integration_test.gd`):
-  `GdUnitSceneRunner` (`scene_runner("res://scenes/main.tscn")`) boots the
-  actual `main.tscn`. Two gotchas that don't match the framework's own
-  docs/tutorials floating around online, both true as of v6.2.0:
-  - There is no `await_idle_frame()` on this version's runner; use
-    `await runner.await_input_processed()` instead.
-  - `GdUnitSceneRunner` is `RefCounted`, not a `Node` — don't call
-    `runner.free()` in `after_test()` (errors: "Attempted to free a
-    RefCounted object"). Just drop the reference (`runner = null`); its
-    `NOTIFICATION_PREDELETE` handler tears down the instantiated scene.
-
-  These tests wait out `main.gd`'s real `delay_before_prompt` timer in real
-  time — `scene_runner` shares the same `SceneTree` that
-  `get_tree().create_timer()` schedules against, so there's no fast-forward
-  without changing production code — costing ~2s (wall clock) each; keep
-  the number of full-round tests here small. **Intentionally not covered**
-  for the same reason: `reroll_board()` (the animated board-swap after
-  `correct_answers_per_reroll` correct answers) and the `retry_delay`
-  re-prompt loop — both are tween/timer-heavy, slow to exercise for real,
-  and lower-risk than the core prompt/tap/advance loop that is covered.
-
-Run the whole suite headlessly from the project root:
-
-```
-godot --headless --path . -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd \
-  -a res://test -c --ignoreHeadlessMode
-```
-
-(`-a` adds the directory/file to run, `-c` runs the full set instead of
-stopping at the first failure, `--ignoreHeadlessMode` is required — this
-GdUnit4 version refuses to run in `--headless` mode without it, since
-`InputEvent`-driven UI tests, e.g. via `scene_runner`, don't work headless.
-Pure-logic tests like the ones here are unaffected.) This writes an
-`.xml`/`.html` report under `reports/` (gitignored) — safe to delete after
-reading. Note: some third-party docs/tutorials for GdUnit4 reference an
-older `--run-tests` CLI flag; that flag doesn't exist in v6.2.0, use `-a`
-as above.
-
-From the editor: open the GdUnit4 panel (bottom dock) and click "Run All".
+@docs/testing.md
