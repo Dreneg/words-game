@@ -166,11 +166,98 @@ Settings.get_value("some_key", default_value)
 Settings.set_value("some_key", new_value)   # writes to disk immediately
 ```
 
-**To add a real setting once the settings screen needs one:** add a control
-under `%ContentContainer` in `scenes/parent/parent_settings.tscn`, and wire
-it directly to `Settings.get_value`/`set_value`. No other code changes are
-needed — this mirrors `word_database.gd`'s own "no other code changes
-needed" pattern for adding a word.
+**To add a setting, two things need to happen, not one:**
+
+1. **The UI that writes it:** add a control under `%ContentContainer` in
+   `scenes/parent/parent_settings.tscn`, and wire it directly to
+   `Settings.get_value`/`set_value` in `parent_settings.gd`.
+2. **Whatever gameplay code the setting is supposed to affect has to read
+   it back.** This part is unavoidable and setting-specific — there's no
+   way around *some* code elsewhere needing to consume the value. The
+   card-count setting (`SettingsKeys.CARD_COUNT`, the first real setting
+   added) is the worked example: `ParentSettings._setup_card_count_row()`
+   writes it, and `Main._apply_stored_card_count()` reads it back at the
+   start of `Main._ready()`, overriding `@export var image_count` before
+   `spawn_board()` runs. Since exiting parent mode always calls
+   `get_tree().reload_current_scene()` (see above), a newly-picked value
+   takes effect automatically on the very next `_ready()` — no extra
+   "apply now" plumbing needed.
+
+Put the key string itself in `scripts/parent/settings_keys.gd`
+(`class_name SettingsKeys`, plain constants, no autoload) rather than
+literal `"card_count"`-style strings in both the writer and the reader —
+it's the one thing a typo in either file would silently break (the setting
+would just always read back as its default, no error). Add a new
+`const` there for each new setting.
+
+Because a stored value is Variant data from a file that could in principle
+be missing, stale, or hand-edited, whatever reads it back must validate
+before trusting it (matching the "best-effort, must not crash" framing
+below) — see `Main._apply_stored_card_count()`'s `stored is int and stored
+> 0` guard for the pattern to follow.
+
+**Persistence means what it says: a saved value stays saved.**
+`Settings.set_value()` defaults to `persist: true` and writes to real disk
+on every call, including from a `pressed` signal fired by an ordinary tap —
+there's no separate "confirm"/"apply" step. So if a parent taps a
+non-default option while just trying the UI out, that becomes the real
+saved value from then on, across restarts, until something explicitly picks
+a different one again. That's the intended behavior (the whole point of
+persistence), not a bug — but it's easy to mistake for one while testing
+("I set it to 12 in the Inspector default, why did it come back as
+something else"), so it's worth remembering this explicitly rather than
+re-diagnosing it each time.
+
+### Worked example: card count and its board shape (`BoardLayout`)
+
+The card-count setting doesn't just pick a total; the board's grid shape
+(columns, and therefore rows) has to follow it too, and the settings
+screen shows that shape rather than a bare number (a parent picks "a
+3x4 board", not "12"). Both of those — `Main`'s actual grid columns and
+`ParentSettings`'s button labels — come from one shared mapping,
+`scripts/parent/board_layout.gd` (`class_name BoardLayout`, a `RefCounted`
+with only `static func`s, no autoload needed since it's stateless):
+
+```gdscript
+const OPTIONS: Array[Dictionary] = [
+    {"count": 9, "columns": 3},
+    {"count": 12, "columns": 4},
+    {"count": 15, "columns": 5},
+]
+static func columns_for(count: int, fallback_columns: int) -> int: ...
+static func label_for(count: int) -> String: ...  # "RxC", e.g. 9 -> "3x3"
+```
+
+Rows are always `count / columns` — there's no independent rows setting.
+`Main._ready()` calls `columns = BoardLayout.columns_for(image_count,
+columns)` **before** `card_grid.columns = columns`, and critically updates
+the `columns` *member itself*, not just `card_grid.columns` — `_slot_offset()`
+(used by `reroll_board()`'s animation math) reads `columns` directly, so if
+only `card_grid.columns` were updated the reroll animation would silently
+use the wrong grid shape for any non-default count. `columns_for`'s
+`fallback_columns` parameter (`Main`'s own `@export var columns`) is what
+keeps a manually-tuned `image_count` outside the three parent-offered
+options from erroring — it just falls back to whatever the Inspector says
+rather than requiring every possible count to have a defined shape.
+
+`ParentSettings._setup_card_count_row()` reads each button's *node name*
+(e.g. `"CardCount9"` → `9`) to get its value, not its displayed text — the
+text is now the "RxC" label, and all three labels currently start with the
+same row count ("3x3"/"3x4"/"3x5"), so parsing the count back out of the
+text wouldn't be unambiguous. Node name stays the stable identifier; label
+text is purely for display and gets overwritten from `BoardLayout.label_for()`
+in code regardless of whatever placeholder text the `.tscn` shows in the
+editor.
+
+**Selected-option highlight:** each card-count button has an explicit
+`theme_override_styles/pressed` (and `hover_pressed`) `StyleBoxFlat` — a
+warm gold fill with a brown border — set directly in `parent_settings.tscn`,
+rather than relying on the engine's default (too-subtle) pressed style.
+This is scoped to just these three buttons via per-node style overrides,
+not a global project `Theme` change, since so far they're the only toggle
+buttons in the game; if more radio-style settings show up later, consider
+promoting this into `assets/theme/game_theme.tres` as `Button.styles.pressed`
+instead of copy-pasting the override onto every new button.
 
 Persistence here is explicitly best-effort, not mission-critical: any
 load/save failure (missing file on first run, a corrupt file, a web/HTML5
@@ -267,7 +354,20 @@ Mirrors `docs/testing.md`'s three-tier pattern, under `test/parent/`:
   retry, deadline expiry, and settings' close signal.
   `settings_test.gd` exercises the real `Settings` autoload (default
   fallback, round-trip) using `persist: false` so tests don't write to a
-  developer's real `user://settings.cfg`.
+  developer's real `user://settings.cfg`. `parent_settings_test.gd` also
+  covers the card-count row (labels show the RxC shape not the bare count,
+  correct button pressed for a stored/missing value, tapping one saves it)
+  — each of those tests restores `SettingsKeys.CARD_COUNT` to
+  `BoardLayout.DEFAULT_COUNT` afterward, since `Settings` is a real shared
+  autoload instance across the whole test run, not reset between
+  tests/suites. `board_layout_test.gd` is pure logic (no scene at all) for
+  `columns_for`/`label_for`, including their unknown-count fallbacks.
+- **`main_settings_integration_test.gd`:** the other half of the card-count
+  feature — that `Main` actually *reads* a stored value (and derives the
+  matching grid `columns`) on startup, not just that `ParentSettings` can
+  write one. Sets `Settings` directly, then creates its own `scene_runner`
+  per test (rather than a shared `before_test()`) since the value has to
+  already be in place before `Main._ready()` runs.
 - **Integration:** one minimal `scene_runner` test drives
   `TapGestureDetector.register_tap()` directly on the real `%Background`
   node inside the real `main.tscn`, five times, and asserts a `ParentGate`

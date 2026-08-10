@@ -10,9 +10,16 @@ extends Control
 
 const WordCardScene := preload("res://scenes/word_card.tscn")
 
-## How many cards are on the board at once. Tune here or in the Inspector.
+## How many cards are on the board at once. Tune here or in the Inspector
+## for the default; the parent-mode settings screen can override this at
+## runtime (see [constant SettingsKeys.CARD_COUNT]), read back in [method _ready].
 @export var image_count: int = 12
-## Columns in the card grid; rows follow automatically.
+## Columns in the card grid; rows follow automatically. Used as the
+## fallback for an [member image_count] outside the parent-configurable
+## board sizes (see [BoardLayout]) -- for a count in [constant
+## BoardLayout.OPTIONS], [method _ready] overrides this to match that
+## option's actual shape (e.g. 9 cards -> 3 columns, a 3x3 board) rather
+## than this fixed value.
 @export var columns: int = 4
 ## Pause between showing the board (or a correct answer) and speaking the
 ## next word, in seconds.
@@ -44,9 +51,22 @@ var round_active: bool = false
 
 
 func _ready() -> void:
+	_apply_stored_card_count()
+	columns = BoardLayout.columns_for(image_count, columns)
 	card_grid.columns = columns
 	spawn_board()
 	start_round()
+
+
+## Overrides [member image_count] with the parent-chosen value from
+## [autoload Settings], if one was ever saved. Falls back to (and leaves
+## untouched) the @export default on first run or if the stored value is
+## missing or malformed -- Settings persistence is best-effort, not
+## mission-critical, so this must never fail loudly. See docs/parent-mode.md.
+func _apply_stored_card_count() -> void:
+	var stored: Variant = Settings.get_value(SettingsKeys.CARD_COUNT, image_count)
+	if stored is int and stored > 0:
+		image_count = stored
 
 
 ## Instantiates a fresh set of [member image_count] random, distinct cards.
