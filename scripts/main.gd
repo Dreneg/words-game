@@ -1,3 +1,4 @@
+class_name Main
 extends Control
 ## Core game loop for the word-matching screen:
 ## show a board of cards -> wait -> speak a word -> wait for the matching
