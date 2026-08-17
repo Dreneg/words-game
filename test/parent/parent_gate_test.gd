@@ -1,17 +1,17 @@
 extends GdUnitTestSuite
 ## Tests for ParentGate (scripts/parent/parent_gate.gd): the code-challenge
 ## screen. deadline_seconds is overridden to a tiny value before start() so
-## nothing here waits out a real 30-second window -- start() (rather than
+## nothing here waits out a real 15-second window -- start() (rather than
 ## _ready()) is exactly what makes that possible, see docs/parent-mode.md.
 
 const ParentGateScene := preload("res://scenes/parent/parent_gate.tscn")
 
 
-func test_generate_code_is_always_four_digits() -> void:
+func test_generate_code_is_always_two_digits() -> void:
 	var gate: ParentGate = auto_free(ParentGate.new())
 	for i in 50: # pure randomness: run enough times to catch an off-by-one
 		var code: String = gate._generate_code()
-		assert_that(code.length()).is_equal(4)
+		assert_that(code.length()).is_equal(ParentGate.CODE_LENGTH)
 		assert_that(code.is_valid_int()).is_true()
 
 
@@ -32,7 +32,7 @@ func test_wrong_code_clears_and_allows_retry_with_same_code() -> void:
 
 	_enter_code(gate, wrong_code)
 	await assert_signal(gate).wait_until(50).is_not_emitted("unlocked")
-	assert_that(gate.entered_digits_label.text).is_equal("○ ○ ○ ○")
+	assert_that(gate.entered_digits_label.text).is_equal("○ ○")
 	assert_that(gate.error_label.visible).is_true()
 
 	# The code doesn't change on a miss -- retrying with the original code
@@ -60,7 +60,7 @@ func test_success_cancels_the_pending_deadline() -> void:
 	await assert_signal(gate).wait_until(200).is_not_emitted("cancelled")
 
 
-func _start_gate(deadline_seconds: float = 30.0) -> ParentGate:
+func _start_gate(deadline_seconds: float = 15.0) -> ParentGate:
 	var gate := auto_free(ParentGateScene.instantiate()) as ParentGate
 	add_child(gate)
 	gate.deadline_seconds = deadline_seconds

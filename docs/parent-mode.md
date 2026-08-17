@@ -41,11 +41,14 @@ Three `mouse_filter` changes were needed together, not one:
 `ParentGate` (`scenes/parent/parent_gate.tscn` /
 `scripts/parent/parent_gate.gd`) is not a real password screen — the code is
 shown right on screen. It works as a gate purely because the target
-audience (toddlers) can't reliably read a 4-digit number or operate a
-keypad. Wrong entries clear and let the parent retry the *same* code; only a
-manual cancel or the deadline expiring closes it.
+audience (toddlers) can't reliably read a 2-digit number or operate a
+keypad. `ParentGate.CODE_LENGTH` is the one place that digit count lives —
+`_generate_code()`, the entry-length check, and the dot-slot display all
+read it rather than hard-coding `2`. Wrong entries clear and let the parent
+retry the *same* code; only a manual cancel or the deadline expiring closes
+it.
 
-The 30-second deadline is driven by a `create_tween().tween_method(...)`
+The 15-second deadline is driven by a `create_tween().tween_method(...)`
 animating a countdown value from `deadline_seconds` to `0`, rather than a
 `Timer` node (none exist elsewhere in this codebase) or a bare
 `await get_tree().create_timer(...).timeout`. One mechanism gets three
@@ -55,7 +58,7 @@ things for free: a live countdown bar/label, trivial cancel-on-success
 `deadline_seconds` is deliberately **not** consumed in `_ready()` — it's
 read when `start()` is called, which `ParentModeCoordinator` calls right
 after `add_child()`. This split exists so a test can set a tiny
-`deadline_seconds` before `start()` runs, instead of eating a real 30-second
+`deadline_seconds` before `start()` runs, instead of eating a real 15-second
 wait per test run. **Don't collapse `start()` back into `_ready()`** — that
 would silently reintroduce the wall-clock cost documented in
 `docs/testing.md`'s guidance on keeping timer-heavy tests cheap.
@@ -456,7 +459,8 @@ Mirrors `docs/testing.md`'s three-tier pattern, under `test/parent/`:
 - **Pure logic:** `tap_gesture_detector_test.gd` drives
   `TapGestureDetector.register_tap(explicit_ms)` directly (no real waits) to
   cover the reset-window and re-trigger behavior; `parent_gate_test.gd`
-  checks `_generate_code()` always returns a 4-digit numeric string.
+  checks `_generate_code()` always returns a `CODE_LENGTH`-digit numeric
+  string.
 - **Single scene:** `parent_gate_test.gd` (continued) and
   `parent_settings_test.gd` instantiate the real `.tscn`, override
   `deadline_seconds` to a tiny value before calling `start()`, and drive

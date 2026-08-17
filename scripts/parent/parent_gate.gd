@@ -1,6 +1,6 @@
 class_name ParentGate
 extends Control
-## The "prove you're an adult" screen: shows a random 4-digit code and asks
+## The "prove you're an adult" screen: shows a random 2-digit code and asks
 ## the parent to type it back on an on-screen keypad within
 ## [member deadline_seconds]. This isn't a secret password -- it's shown
 ## right on screen -- it only works as a gate because the target audience
@@ -13,10 +13,13 @@ extends Control
 signal unlocked()
 signal cancelled()
 
+## How many digits the challenge code has.
+const CODE_LENGTH: int = 2
+
 ## Fixed deadline from the moment [method start] is called, in seconds.
 ## Deliberately not read until [method start] (not [method _ready]) so a
 ## test can override it to a tiny value first -- see docs/parent-mode.md.
-@export var deadline_seconds: float = 30.0
+@export var deadline_seconds: float = 15.0
 
 @onready var code_display_label: Label = %CodeDisplay
 @onready var countdown_bar: ProgressBar = %CountdownBar
@@ -58,7 +61,8 @@ func start() -> void:
 
 
 func _generate_code() -> String:
-	return "%04d" % randi_range(0, 9999)
+	var max_value := int(pow(10, CODE_LENGTH)) - 1
+	return str(randi_range(0, max_value)).pad_zeros(CODE_LENGTH)
 
 
 func _update_countdown(seconds_left: float) -> void:
@@ -71,11 +75,11 @@ func _on_deadline_expired() -> void:
 
 
 func _on_digit_pressed(digit: int) -> void:
-	if _entered_digits.length() >= 4:
+	if _entered_digits.length() >= CODE_LENGTH:
 		return
 	_entered_digits += str(digit)
 	_update_digits_display()
-	if _entered_digits.length() == 4:
+	if _entered_digits.length() == CODE_LENGTH:
 		_check_code()
 
 
@@ -104,7 +108,7 @@ func _check_code() -> void:
 func _update_digits_display() -> void:
 	var filled := _entered_digits.length()
 	var slots: Array[String] = []
-	for i in 4:
+	for i in CODE_LENGTH:
 		slots.append("●" if i < filled else "○")
 	entered_digits_label.text = " ".join(slots)
 

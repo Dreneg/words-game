@@ -66,7 +66,7 @@ lessons learned:
 - Positive reinforcement on wrong answers rather than harsh failure states.
 - Keep screens uncluttered — a small number of clear image choices at a time.
 - Exception: **parent mode** (see below) deliberately requires reading a
-  4-digit number — that's intentional, since it's only reachable via a
+  2-digit number — that's intentional, since it's only reachable via a
   5-tap adult gesture, not part of the toddler-facing game loop.
 
 ## Parent mode
