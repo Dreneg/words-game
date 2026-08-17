@@ -1,7 +1,7 @@
 [gd_resource type="Theme" load_steps=3 format=3]
 
-[ext_resource type="FontFile" path="res://assets/fonts/Baloo2-Regular.ttf" id="1"]
-[ext_resource type="FontFile" path="res://assets/fonts/Baloo2-Bold.ttf" id="2"]
+[ext_resource type="FontFile" path="res://assets/fonts/SuperWarming-Regular.ttf" id="1"]
+[ext_resource type="FontFile" path="res://assets/fonts/SuperWarming-Regular.ttf" id="2"]
 
 [resource]
 default_font = ExtResource("1")

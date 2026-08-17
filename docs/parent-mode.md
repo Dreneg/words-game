@@ -376,8 +376,7 @@ any gets added later.
   `ErrorLabel` intentionally overrides this locally to red — that's the one
   deliberate departure, everything else should inherit the theme default
   rather than setting its own color.
-- **Font:** `assets/fonts/Baloo2-{Regular,Bold}.ttf` (Google Fonts, SIL Open
-  Font License — `assets/fonts/Baloo2-OFL.txt`), a bold rounded/bubbly
+- **Font:** `assets/fonts/SuperWarming-Regular.ttf`, a bold rounded/bubbly
   typeface that fits the toddler-app tone much better than the engine
   default. **Picking it required checking actual glyph coverage, not just
   vibes:** the first, more overtly "cartoonish" candidates tried —Fredoka,
@@ -385,16 +384,25 @@ any gets added later.
   Hungarian double-acute characters, which would have silently broken
   existing vocabulary (`WORD_CLOUD` "felhő", `WORD_SHOE` "cipő",
   `WORD_FIRE_TRUCK` "tűzoltóautó") and even this feature's own
-  `PARENT_GATE_TITLE` ("Szülői mód"). Baloo 2 was verified to have full
-  `latin-ext` coverage (checked programmatically against
-  `WordDatabase`/`ui.csv`'s actual character set, not just the font's
-  advertised subset list) before being adopted. **Any future font swap must
-  redo this check** — a font that looks right for English/vibes-based
-  browsing can still be silently broken for this project's actual (Hungarian)
-  content. `default_font` (Regular) covers `Label`s generally; `Button`
-  gets the Bold weight project-wide for a chunkier, more obviously-tappable
-  look, and the gate/settings screens' `TitleLabel`/`CodeDisplay` opt into
-  Bold locally for header emphasis.
+  `PARENT_GATE_TITLE` ("Szülői mód"); a later "Matcha Mint" candidate was
+  worse still — ASCII-only, missing *every* accented Hungarian letter, not
+  just `ő`/`ű`. Both were caught the same way: dump the font's cmap with
+  `fontTools` and diff it against the actual character set used in
+  `localization/words.csv`/`ui.csv`, not the font's advertised subset list
+  or how it looks rendering English. Super Warming was verified the same
+  way before being adopted (zero missing characters against those two
+  CSVs). **Any future font swap must redo this check.** Unlike the Baloo 2
+  it replaced, Super Warming ships as a single weight/file — both
+  `default_font` and `Button`'s font in `game_theme.tres` point at the same
+  `SuperWarming-Regular.ttf`, and the gate/settings screens' `TitleLabel`/
+  `CodeDisplay` local font overrides (originally there to opt into a
+  separate Bold weight) now just point at that same single file too, kept
+  as explicit overrides rather than removed so a future per-screen size/
+  weight tweak has somewhere to go. No bundled license file came with this
+  font (unlike Baloo 2's `Baloo2-OFL.txt`); it was added on the strength of
+  the user's own confirmation of its license/source rather than a
+  redistributable license text in this repo — worth revisiting if that
+  provenance ever needs to be produced (e.g. a store listing review).
 - **Checkbox tint is a separate property from text color — easy to miss.**
   The category checklist's checkmarks initially rendered white-on-cream
   (poor contrast) even though `Button/colors/font_color` was already set

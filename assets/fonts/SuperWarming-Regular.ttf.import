@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://bojsipq6blrk5"
-path="res://.godot/imported/Baloo2-Bold.ttf-987f017c445b1e2547017d508a63a831.fontdata"
+uid="uid://c4o6k0g65nf2b"
+path="res://.godot/imported/SuperWarming-Regular.ttf-3e5b10bbae0e567db7728aad751d0fcc.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/Baloo2-Bold.ttf"
-dest_files=["res://.godot/imported/Baloo2-Bold.ttf-987f017c445b1e2547017d508a63a831.fontdata"]
+source_file="res://assets/fonts/SuperWarming-Regular.ttf"
+dest_files=["res://.godot/imported/SuperWarming-Regular.ttf-3e5b10bbae0e567db7728aad751d0fcc.fontdata"]
 
 [params]
 

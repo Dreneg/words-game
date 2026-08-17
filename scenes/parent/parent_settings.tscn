@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/parent/parent_settings.gd" id="1"]
-[ext_resource type="FontFile" path="res://assets/fonts/Baloo2-Bold.ttf" id="2"]
+[ext_resource type="FontFile" path="res://assets/fonts/SuperWarming-Regular.ttf" id="2"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_card_count"]
 

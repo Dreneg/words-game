@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/parent/parent_gate.gd" id="1"]
-[ext_resource type="FontFile" path="res://assets/fonts/Baloo2-Bold.ttf" id="2"]
+[ext_resource type="FontFile" path="res://assets/fonts/SuperWarming-Regular.ttf" id="2"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.996, 0.973, 0.906, 1)
