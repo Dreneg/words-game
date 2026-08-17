@@ -3,7 +3,7 @@ extends GdUnitTestSuite
 ## word picker and the per-locale audio path resolver, both pure logic that
 ## doesn't touch the scene tree.
 
-const WORD_COUNT := 45 # Keep in sync with WordDatabase.WORDS.
+const WORD_COUNT := 61 # Keep in sync with WordDatabase.WORDS.
 
 
 func test_get_random_words_returns_requested_count() -> void:
