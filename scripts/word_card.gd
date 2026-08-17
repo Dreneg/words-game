@@ -3,9 +3,10 @@ extends Control
 ## A single tappable icon in the matching grid.
 ##
 ## Main assigns this card a word via [method setup]; the card only knows how
-## to display its icon, report taps, and play its own correct-match
-## animation. It has no opinion on whether the tap was right — Main decides
-## that and calls [method play_correct_feedback] when it was.
+## to display its icon, report taps, and play its own correct/wrong-match
+## animations. It has no opinion on whether a tap was right — Main decides
+## that and calls [method play_correct_feedback] or [method play_wrong_feedback]
+## accordingly.
 ##
 ## Layered as Shadow (behind) -> Icon (the actual button/texture) -> Ring
 ## (in front). The border ring and drop shadow are drawn entirely in
@@ -56,4 +57,21 @@ func play_correct_feedback() -> void:
 
 	var flash := create_tween()
 	flash.tween_property(self, "modulate", Color(0.6, 1.0, 0.65), 0.15)
+	flash.tween_property(self, "modulate", Color.WHITE, 0.35)
+
+
+## Wobbles the card and flashes it red to mark a wrong tap. Unlike
+## [method play_correct_feedback], the round isn't over -- the card is left
+## enabled so the player can immediately try again, per CLAUDE.md's "no fail
+## states that punish wrong taps hard": this is feedback, not a penalty.
+func play_wrong_feedback() -> void:
+	var shake := create_tween()
+	shake.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	shake.tween_property(self, "rotation", deg_to_rad(8.0), 0.06)
+	shake.tween_property(self, "rotation", deg_to_rad(-8.0), 0.09)
+	shake.tween_property(self, "rotation", deg_to_rad(5.0), 0.09)
+	shake.tween_property(self, "rotation", 0.0, 0.07)
+
+	var flash := create_tween()
+	flash.tween_property(self, "modulate", Color(1.0, 0.55, 0.55), 0.15)
 	flash.tween_property(self, "modulate", Color.WHITE, 0.35)

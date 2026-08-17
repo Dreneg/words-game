@@ -50,3 +50,13 @@ func test_play_correct_feedback_disables_card() -> void:
 
 	assert_that(card.disabled).is_true()
 	assert_that(card.icon_button.disabled).is_true()
+
+
+func test_play_wrong_feedback_leaves_card_enabled() -> void:
+	var card := auto_free(WordCardScene.instantiate()) as WordCard
+	add_child(card)
+
+	card.play_wrong_feedback()
+
+	assert_that(card.disabled).is_false()
+	assert_that(card.icon_button.disabled).is_false()

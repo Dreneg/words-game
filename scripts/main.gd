@@ -294,8 +294,12 @@ func pick_target_word() -> Dictionary:
 
 
 func _on_card_selected(word_key: String) -> void:
-	if not round_active or word_key != current_target_key:
-		return # No active prompt yet, or a wrong tap: do nothing, per design.
+	if not round_active:
+		return # No active prompt yet.
+
+	if word_key != current_target_key:
+		_play_wrong_feedback_for(word_key)
+		return # Round stays active -- the player can keep trying.
 
 	round_active = false
 	last_target_key = current_target_key
@@ -317,3 +321,14 @@ func _on_card_selected(word_key: String) -> void:
 		await reroll_board()
 
 	start_round()
+
+
+## Flashes the tapped card red to signal a wrong match. Purely visual --
+## doesn't touch round_active, correct_count, or the card's disabled state,
+## so the player can immediately try a different card.
+func _play_wrong_feedback_for(word_key: String) -> void:
+	for child in card_grid.get_children():
+		var card := child as WordCard
+		if card and card.word_key == word_key:
+			card.play_wrong_feedback()
+			break

@@ -50,11 +50,14 @@ func test_correct_tap_advances_round_and_disables_card() -> void:
 	assert_that(target_card.disabled).is_true()
 
 
-func test_wrong_tap_is_ignored() -> void:
+func test_wrong_tap_gives_feedback_but_does_not_advance_round() -> void:
 	var main := await _await_first_prompt()
 
 	var wrong_card := _find_card_other_than(main, main.current_target_key)
 
+	# Wrong taps still play a (visual-only) feedback animation on the card --
+	# see WordCard.play_wrong_feedback -- but must not touch round state or
+	# disable the card, so the player can keep trying.
 	wrong_card.icon_button.pressed.emit()
 
 	assert_that(main.round_active).is_true()
